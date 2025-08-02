@@ -6,8 +6,6 @@
     <title>誰最屌！？哺乳類動物的「那話兒」大公開！</title>
     <!-- 引入 Tailwind CSS CDN，用於快速建立響應式和美觀的介面 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Tone.js 用於生成音效 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <style>
         /* 設定 Inter 字體，提供更好的可讀性 */
         body {
@@ -41,68 +39,433 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 增加陰影 */
             transition: all 0.2s ease-in-out;
         }
-        /* 趣味知識區塊的樣式 */
-        .fun-facts-section {
-            background-color: #ffe4e6; /* 淺粉色背景 */
-            border-left: 5px solid #f472b6; /* 粉色邊框 */
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            margin-top: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .fun-facts-section h2 {
-            color: #db2777; /* 深粉色標題 */
-            font-size: 1.5rem;
+        /* 人類行標示樣式 */
+        .highlight-human {
+            background-color: #fffacd !important; /* 淺黃色背景 */
             font-weight: bold;
-            margin-bottom: 1rem;
-            text-align: center;
+            color: #8b4513; /* 深棕色文字 */
         }
-        .fun-facts-section ul {
-            list-style: none; /* 移除預設列表點 */
-            padding-left: 0;
+        /* 皇冠表情符號的樣式 */
+        .crown-emoji {
+            font-size: 1.8em; /* 讓皇冠更大 */
+            line-height: 1; /* 調整行高以更好地定位 */
+            display: block; /* 讓皇冠獨佔一行 */
+            margin-bottom: 0.2em; /* 增加與文字的間距 */
         }
-        .fun-facts-section li {
-            margin-bottom: 0.75rem;
-            color: #831843; /* 深紅色文字 */
-            line-height: 1.6;
-            position: relative;
-            padding-left: 1.5rem; /* 為自定義點留空間 */
+        /* 包含皇冠和動物名稱的單元格樣式 */
+        .animal-cell-content {
+            display: flex;
+            flex-direction: column; /* 垂直排列 */
+            align-items: center; /* 水平居中 */
+            justify-content: center; /* 垂直居中 */
+            text-align: center; /* 文字居中 */
+            height: 100%; /* 讓內容佔滿單元格高度 */
         }
-        .fun-facts-section li::before {
-            content: '💡'; /* 自定義列表點 */
-            position: absolute;
-            left: 0;
-            top: 0;
-            font-size: 1.2rem;
+        /* 動物名稱按鈕樣式 */
+        .animal-name-button {
+            @apply bg-transparent text-gray-800 font-semibold py-1 px-2 rounded-md;
+            @apply hover:underline hover:text-pink-600 transition-colors duration-150;
+            cursor: pointer;
+            border: none; /* 移除預設按鈕邊框 */
+            display: inline-block; /* 允許文字換行 */
+            white-space: normal; /* 允許文字換行 */
+            line-height: 1.2; /* 調整行高讓文字更緊湊 */
         }
-        /* 立體按鈕樣式 */
-        .qa-button {
-            /* 基本樣式 */
-            @apply bg-pink-500 text-white font-bold py-3 px-6 rounded-full cursor-pointer;
-            /* 邊界和 3D 效果調整 */
-            border: 2px solid #c21e56; /* 增加明顯的邊界 */
-            box-shadow: 0 6px 0 #8b153a, /* 更深的底部陰影，模擬深度 */
-                        0 2px 4px rgba(0, 0, 0, 0.2); /* 輕微的頂部陰影 */
-            transition: all 0.1s ease-in-out; /* 平滑過渡 */
-            transform: translateY(0); /* 預設位置 */
+        .highlight-human .animal-name-button {
+            @apply text-orange-800; /* 調整高亮行文字顏色 */
         }
-        .qa-button:hover {
-            @apply bg-pink-600;
-            transform: translateY(-2px); /* 懸停時輕微上浮 */
-            box-shadow: 0 8px 0 #7b1333, /* 懸停時更深的陰影 */
-                        0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        .qa-button:active {
-            @apply bg-pink-700;
-            transform: translateY(4px); /* 點擊時下沉，模擬按下 */
-            box-shadow: 0 2px 0 #5c0f27, /* 按下時更淺的陰影 */
-                        0 1px 2px rgba(0, 0, 0, 0.1);
-            border-color: #5c0f27; /* 按下時邊界顏色變深 */
-        }
-        .qa-button:disabled {
-            @apply bg-gray-400 text-gray-200 cursor-not-allowed;
-            border-color: #a0a0a0; /* 禁用時的邊界顏色 */
-            box-shadow: 0 3px 0 #707070; /* 禁用時的陰影 */
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center">
+    <div class="bg-white rounded-lg shadow-2xl p-6 max-w-5xl w-full my-8">
+        <h1 class="text-4xl font-extrabold text-center text-pink-600 mb-6 animate-pulse">
+            誰最屌！？ 🍆 哺乳類動物的「那話兒」大公開！ ⏱️
+        </h1>
+        <p class="text-lg text-gray-700 text-center mb-4">
+            好奇動物界的「尺寸」與「持久力」嗎？一起來看看這些令人驚訝🙀的數據吧！
+        </p>
+
+        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-pink-500 text-white">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider rounded-tl-lg">
+                            排名
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            動物種類 🐾
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            勃起長度 (約略) 📏
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                            射精時間 (約略) ⏱️
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="mammal-table-body" class="bg-white divide-y divide-gray-200">
+                    <!-- 表格內容將由 JavaScript 動態載入 -->
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">1</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <span class="crown-emoji">👑</span>
+                                <button type="button" class="animal-name-button" data-animal="藍鯨 🐳" data-note="地球上體型最大的動物，其陰莖也是已知動物中最大的，簡直是海洋巨無霸！">藍鯨 🐳</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">240 - 300 公分 (約一台公車長)</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">深海秘密，尚待探索！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">2</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="非洲象 🐘" data-note="陸地上陰莖最長的動物，威風凜凜！">非洲象 🐘</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">100 - 180 公分 (約一個成年人高)</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">閃電般迅速！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">3</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="公牛 🐂" data-note="它的「那話兒」主要是伸長，而不是變粗，效率至上！">公牛 🐂</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">80 - 100 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">一眨眼就搞定！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">4</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="長頸鹿 🦒" data-note="高高在上的牠們，連這方面也與眾不同！">長頸鹿 🦒</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">70 - 100 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">咻一下就完成了！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">5</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="海象 🦭" data-note="擁有所有哺乳動物中最長的陰莖骨，硬度驚人！">海象 🦭</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">60 - 75 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">冰海之謎！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">6</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="馬 🐎" data-note="勃起時長度可達平時的兩倍，變化超大！">馬 🐎</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">50 - 100 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">幾秒鐘的事！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">7</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="豬 🐖" data-note="獨特的螺旋狀陰莖，為了更「緊密」的結合！">豬 🐖</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">30 - 50 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">耐心等待 5-15 分鐘！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">8</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="驢 🐴" data-note="">驢 🐴</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">25 - 40 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">瞬間完成！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">9</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="灰熊 🐻" data-note="">灰熊 🐻</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">20 - 30 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">森林裡的秘密！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">10</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="駱駝 🐪" data-note="沙漠中的耐力王者，連這方面也很有耐心！">駱駝 🐪</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">20 - 30 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">幾分鐘的浪漫！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">11</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="紅鹿 🦌" data-note="">紅鹿 🦌</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">15 - 25 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">快速搞定！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">12</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="羊 🐑" data-note="">羊 🐑</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">15 - 20 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">咻一下就結束了！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">13</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="山羊 🐐" data-note="">山羊 🐐</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">15 - 20 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">瞬間完成！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out highlight-human">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">14</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="人類 🧍" data-note="平均勃起長度，但「尺寸」和「時間」都是個體差異很大的話題喔！">人類 🧍</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">13 - 15 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">數分鐘，因人而異！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">15</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="老虎 🐅" data-note="陰莖帶有倒刺，為了快速刺激雌性排卵！">老虎 🐅</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">10 - 20 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">電光火石之間！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">16</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="獅子 🦁" data-note="與老虎類似，也是帶刺的「那話兒」！">獅子 🦁</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">10 - 20 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">迅速搞定！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">17</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="狗 🐶" data-note="交配時會出現「鎖定」現象，所以時間會比較長喔！">狗 🐶</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">5 - 20 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">5 - 30 分鐘 (鎖定中...)</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">18</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="袋鼠 🦘" data-note="擁有獨特的雙頭陰莖，適應雌性的雙陰道結構！">袋鼠 🦘</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">10 - 20 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">很快的！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">19</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="狼 🐺" data-note="和狗狗一樣，也會有「鎖定」的特殊時刻！">狼 🐺</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">8 - 15 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">5 - 30 分鐘 (鎖定中...)</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">20</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="熊貓 🐼" data-note="看似笨拙，但這方面也很努力！">熊貓 🐼</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">5 - 10 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">溫柔的幾分鐘！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">21</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="狐狸 🦊" data-note="">狐狸 🦊</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">5 - 10 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">幾分鐘的浪漫！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">22</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="水獺 🦦" data-note="水中的小精靈，交配也很有趣！">水獺 🦦</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">5 - 10 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">水下進行，時間不詳！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">23</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="蝙蝠 🦇" data-note="種類繁多，尺寸也各異，但通常都小巧玲瓏！">蝙蝠 🦇</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">1 - 5 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">夜間行動，是個謎！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">24</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="大猩猩 🦍" data-note="體型雖大，但「那話兒」卻相對迷你，證明尺寸不是唯一！">大猩猩 🦍</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">3 - 4 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">數秒至數分鐘，很有效率！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">25</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="貓 🐱" data-note="陰莖帶有倒刺，是為了刺激雌貓排卵的秘密武器！">貓 🐱</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">2 - 3 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">快速閃電戰！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">26</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="兔子 🐰" data-note="繁殖力超強的牠們，交配也超級迅速！">兔子 🐰</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">2 - 3 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">一瞬間的事！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">27</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="老鼠 🐭" data-note="">老鼠 🐭</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">1 - 2 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">眨眼功夫！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">28</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="倉鼠 🐹" data-note="">倉鼠 🐹</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">1 - 2 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">超光速完成！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out bg-gray-50">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">29</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="鼴鼠 🕳️" data-note="生活在地下，連這方面也充滿神秘感！">鼴鼠 🕳️</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">1 - 2 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">地下世界的秘密！</td>
+                    </tr>
+                    <tr class="hover:bg-pink-50 transition-all duration-200 ease-in-out">
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">30</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                            <div class="animal-cell-content">
+                                <button type="button" class="animal-name-button" data-animal="鼩鼱 🐁" data-note="體型非常小，陰莖也迷你到不行，但依然能繁衍後代！">鼩鼱 🐁</button>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">0.5 - 1 公分</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">小到看不見的瞬間！</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 同場加映：持久王排名區塊 -->
+        <div class="bg-blue-100 rounded-lg shadow-md p-6 mt-8 border-l-4 border-blue-500">
+            <h2 class="text-center text-2xl font-bold text-blue-800 mb-6">👑 同場加映：哺乳類的「持久王」排名 👑</h2>
+            <div class="overflow-x-auto rounded-lg border border-blue-200">
+                <table class="w-full text-left table-auto">
+                    <thead class="bg-blue-600 text-white">
+                        <tr>
+                            <th class="px-4 py-3 text-sm font-semibold rounded-tl-lg">排名</th>
+                            <th class="px-4 py-3 text-sm font-semibold">動物</th>
+                            <th class="px-4 py-3 text-sm font-semibold">特色</th>
+                            <th class="px-4 py-3 text-sm font-semibold rounded-tr-lg">平均交配時間</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-blue-200">
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base font-bold">1️⃣</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base">果蝠</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-700 text-sm">交配可長達 6–12 小時，中間幾乎不休息，算是哺乳類界最驚人的馬拉松型選手</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base font-medium">6–12 小時</td>
+                        </tr>
+                        <tr class="bg-blue-50 border-b border-blue-200">
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base font-bold">2️⃣</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base">獅子</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-700 text-sm">雖然單次只有 30–60 秒，但 24 小時內能交配 20–40 次，總時數累積恐超過果蝠</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base font-medium">多次累積數小時</td>
+                        </tr>
+                        <tr class="border-b border-blue-200">
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base font-bold">3️⃣</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base">倭黑猩猩</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-700 text-sm">社交型交配，頻率高、時間長，常有「長時間愛撫與配對行為」，可持續 30–60 分鐘</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base font-medium">30–60 分鐘</td>
+                        </tr>
+                        <tr class="bg-blue-50 border-b border-blue-200">
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base font-bold">4️⃣</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base">灰鯨</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-700 text-sm">交配常是「三人行」，互相協助配對，時間可持續 30 分鐘以上</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base font-medium">30 分鐘以上</td>
+                        </tr>
+                        <tr class="border-b border-blue-200">
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base font-bold">5️⃣</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base">海豚</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-700 text-sm">交配頻繁，雖然每次僅數十秒，但前戲長、互動頻繁，是「耐力社交派」</td>
+                            <td class="px-4 py-3 whitespace-normal text-gray-800 text-base font-medium">多次累積</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="text-sm text-gray-600 mt-6 text-center">
+            <strong class="font-semibold">免責聲明：</strong> 這些數據主要來自科學研究和觀察，但實際情況可能因個體、環境和測量方法而異。
+        </p>
+    </div>
+</body>
+</html>
+
             transform: translateY(0); /* 禁用時無動畫 */
         }
         /* 人類行標示樣式 */
