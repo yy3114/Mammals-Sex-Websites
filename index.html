@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>誰最屌！？哺乳類動物的「那話兒」大公開！</title>
+    <!-- 引入 Tailwind CSS CDN，用於快速建立響應式和美觀的介面 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Tone.js 用於生成音效 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        /* 設定 Inter 字體，提供更好的可讀性 */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to right bottom, #a7f3d0, #67e8f9); /* 活潑的漸層背景 */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem; /* 增加整體內邊距 */
+        }
+        /* 自定義表格標頭的箭頭樣式，用於指示排序方向 */
+        .sort-arrow {
+            display: inline-block;
+            margin-left: 0.5rem;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            vertical-align: middle;
+        }
+        .sort-asc {
+            border-bottom: 5px solid white; /* 上箭頭 */
+        }
+        .sort-desc {
+            border-top: 5px solid white; /* 下箭頭 */
+        }
+        /* 表格行懸停效果 */
+        tr:hover {
+            transform: scale(1.01); /* 輕微放大 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 增加陰影 */
+            transition: all 0.2s ease-in-out;
+        }
+        /* 趣味知識區塊的樣式 */
+        .fun-facts-section {
+            background-color: #ffe4e6; /* 淺粉色背景 */
+            border-left: 5px solid #f472b6; /* 粉色邊框 */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .fun-facts-section h2 {
+            color: #db2777; /* 深粉色標題 */
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .fun-facts-section ul {
+            list-style: none; /* 移除預設列表點 */
+            padding-left: 0;
+        }
+        .fun-facts-section li {
+            margin-bottom: 0.75rem;
+            color: #831843; /* 深紅色文字 */
+            line-height: 1.6;
+            position: relative;
+            padding-left: 1.5rem; /* 為自定義點留空間 */
+        }
+        .fun-facts-section li::before {
+            content: '💡'; /* 自定義列表點 */
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1.2rem;
+        }
+        /* 立體按鈕樣式 */
+        .qa-button {
+            /* 基本樣式 */
+            @apply bg-pink-500 text-white font-bold py-3 px-6 rounded-full cursor-pointer;
+            /* 邊界和 3D 效果調整 */
+            border: 2px solid #c21e56; /* 增加明顯的邊界 */
+            box-shadow: 0 6px 0 #8b153a, /* 更深的底部陰影，模擬深度 */
+                        0 2px 4px rgba(0, 0, 0, 0.2); /* 輕微的頂部陰影 */
+            transition: all 0.1s ease-in-out; /* 平滑過渡 */
+            transform: translateY(0); /* 預設位置 */
+        }
+        .qa-button:hover {
+            @apply bg-pink-600;
+            transform: translateY(-2px); /* 懸停時輕微上浮 */
+            box-shadow: 0 8px 0 #7b1333, /* 懸停時更深的陰影 */
+                        0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .qa-button:active {
+            @apply bg-pink-700;
+            transform: translateY(4px); /* 點擊時下沉，模擬按下 */
+            box-shadow: 0 2px 0 #5c0f27, /* 按下時更淺的陰影 */
+                        0 1px 2px rgba(0, 0, 0, 0.1);
+            border-color: #5c0f27; /* 按下時邊界顏色變深 */
+        }
+        .qa-button:disabled {
+            @apply bg-gray-400 text-gray-200 cursor-not-allowed;
+            border-color: #a0a0a0; /* 禁用時的邊界顏色 */
+            box-shadow: 0 3px 0 #707070; /* 禁用時的陰影 */
+            transform: translateY(0); /* 禁用時無動畫 */
+        }
+        /* 人類行標示樣式 */
+        .highlight-human {
+            background-color: #fffacd !important; /* 淺黃色背景 */
+            font-weight: bold;
+            color: #8b4513; /* 深棕色文字 */
+        }
+        /* 皇冠表情符號的樣式 */
+        .crown-emoji {
+            font-size: 1.8em; /* 讓皇冠更大 */
+            line-height: 1; /* 調整行高以更好地定位 */
+            display: block; /* 讓皇冠獨佔一行 */
+            margin-bottom: 0.2em; /* 增加與文字的間距 */
+        }
+        /* 包含皇冠和動物名稱的單元格樣式 */
+        .animal-cell-content {
+            display: flex;
+            flex-direction: column; /* 垂直排列 */
+            align-items: center; /* 水平居中 */
+            justify-content: center; /* 垂直居中 */
+            text-align: center; /* 文字居中 */
+            height: 100%; /* 讓內容佔滿單元格高度 */
+        }
+        /* 動物名稱按鈕樣式 */
+        .animal-name-button {
+            @apply bg-transparent text-gray-800 font-semibold py-1 px-2 rounded-md;
+            @apply hover:underline hover:text-pink-600 transition-colors duration-150;
+            cursor: pointer;
+            border: none; /* 移除預設按鈕邊框 */
+            display: inline-block; /* 允許文字換行 */
+            white-space: normal; /* 允許文字換行 */
+            line-height: 1.2; /* 調整行高讓文字更緊湊 */
+        }
+        .highlight-human .animal-name-button {
+            @apply text-orange-800; /* 調整高亮行文字顏色 */
+        }
+
+        /* 趣味內容彈出視窗樣式 */
+        .fun-note-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000; /* 確保在最上層 */
+        }
+
+        .fun-note-modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+            width: 400px; /* 緊湊的固定寬度 */
+            position: relative;
+            animation: fadeInScale 0.3s ease-out forwards; /* 加入動畫 */
+        }
+
+        .fun-note-modal-close {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #9ca3af; /* 灰色 */
+            cursor: pointer;
+            padding: 0.25rem;
+            line-height: 1;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .fun-note-modal-close:hover {
+            color: #ef4444; /* 紅色 */
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center">
+    <div class="bg-white rounded-lg shadow-2xl p-6 max-w-5xl w-full my-8">
+        <h1 class="text-4xl font-extrabold text-center text-pink-600 mb-6 animate-pulse">
+            誰最屌！？ 🍆 哺乳類動物的「那話兒」大公開！ ⏱️
+        </h1>
+        <p class="text-lg text-gray-700 text-center mb-4">
+            好奇動物界的「尺寸」與「持久力」嗎？一起來看看這些令人驚訝🙀的數據吧！
+        </p>
+        <p class="text-lg text-gray-700 text-center mb-8 font-semibold text-purple-700">
+            別忘了，頁面下方還有刺激的**快問快答**等你來**準備好腦力激盪了嗎？**🧠
+        </p>
+
+        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-pink-500 text-white">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider rounded-tl-lg cursor-pointer hover:bg-pink-600 transition-colors duration-200" data-sort-by="rank">
+                            排名
+                            <span class="sort-arrow" id="sort-rank"></span>
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-pink-600 transition-colors duration-200" data-sort-by="animal">
+                            動物種類 🐾
+                            <span class="sort-arrow" id="sort-animal"></span>
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-pink-600 transition-colors duration-200" data-sort-by="lengthSort">
+                            勃起長度 (約略) 📏
+                            <span class="sort-arrow" id="sort-lengthSort"></span>
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-pink-600 transition-colors duration-200" data-sort-by="ejaculationSort">
+                            射精時間 (約略) ⏱️
+                            <span class="sort-arrow" id="sort-ejaculationSort"></span>
+                        </th>
+                        <!-- 趣味備註欄位已移除 -->
+                    </tr>
+                </thead>
+                <tbody id="mammal-table-body" class="bg-white divide-y divide-gray-200">
+                    <!-- 表格內容將由 JavaScript 動態載入 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 快問快答區塊 -->
+        <div class="fun-facts-section">
+            <h2 class="text-center text-2xl font-bold mb-4">🧠 快問快答時間！考考你對動物的了解！ 💡</h2>
+            <div id="qa-container" class="text-center p-4">
+                <p id="qa-question" class="text-xl font-semibold text-gray-800 mb-4"></p>
+                <p id="qa-answer" class="text-lg text-gray-700 mb-6 hidden"></p>
+                <div class="space-x-4">
+                    <button id="show-answer-btn" class="qa-button">顯示答案</button>
+                    <button id="next-question-btn" class="qa-button">下一題</button>
+                    <button id="restart-quiz-btn" class="qa-button hidden">重新開始</button>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-sm text-gray-600 mt-6 text-center">
+            <strong class="font-semibold">免責聲明：</strong> 這些數據主要來自科學研究和觀察，但實際情況可能因個體、環境和測量方法而異。
+        </p>
+    </div>
+
+    <!-- 趣味內容彈出視窗 (Modal) -->
+    <div id="fun-note-modal-overlay" class="fun-note-modal-overlay hidden">
+        <div class="fun-note-modal-content">
+            <button id="fun-note-modal-close" class="fun-note-modal-close">&times;</button>
+            <h3 id="modal-animal-name" class="text-2xl font-bold text-pink-600 mb-3 text-center"></h3>
+            <p id="modal-fun-note" class="text-gray-700 text-base leading-relaxed"></p>
+        </div>
+    </div>
+
+    <script>
+        // 哺乳類動物數據，加入更多趣味描述和排序用的數值
+        // 僅保留排名 1 到 30 的動物
+        const mammalData = [
+            { rank: 1, animal: "藍鯨 🐳", lengthText: "240 - 300 公分 (約一台公車長)", lengthSort: 270, ejaculationText: "深海秘密，尚待探索！", ejaculationSort: Infinity, notes: "地球上體型最大的動物，其陰莖也是已知動物中最大的，簡直是海洋巨無霸！" },
+            { rank: 2, animal: "非洲象 🐘", lengthText: "100 - 180 公分 (約一個成年人高)", lengthSort: 140, ejaculationText: "閃電般迅速！", ejaculationSort: 60, notes: "陸地上陰莖最長的動物，威風凜凜！" },
+            { rank: 3, animal: "公牛 🐂", lengthText: "80 - 100 公分", lengthSort: 90, ejaculationText: "一眨眼就搞定！", ejaculationSort: 5, notes: "它的「那話兒」主要是伸長，而不是變粗，效率至上！" },
+            { rank: 4, animal: "長頸鹿 🦒", lengthText: "70 - 100 公分", lengthSort: 85, ejaculationText: "咻一下就完成了！", ejaculationSort: 5, notes: "高高在上的牠們，連這方面也與眾不同！" },
+            { rank: 5, animal: "海象 🦭", lengthText: "60 - 75 公分", lengthSort: 67.5, ejaculationText: "冰海之謎！", ejaculationSort: Infinity, notes: "擁有所有哺乳動物中最長的陰莖骨，硬度驚人！" },
+            { rank: 6, animal: "馬 🐎", lengthText: "50 - 100 公分", lengthSort: 75, ejaculationText: "幾秒鐘的事！", ejaculationSort: 30, notes: "勃起時長度可達平時的兩倍，變化超大！" },
+            { rank: 7, animal: "豬 🐖", lengthText: "30 - 50 公分", lengthSort: 40, ejaculationText: "耐心等待 5-15 分鐘！", ejaculationSort: 600, notes: "獨特的螺旋狀陰莖，為了更「緊密」的結合！" },
+            { rank: 8, animal: "驢 🐴", lengthText: "25 - 40 公分", lengthSort: 32.5, ejaculationText: "瞬間完成！", ejaculationSort: 30, notes: "" },
+            { rank: 9, animal: "灰熊 🐻", lengthText: "20 - 30 公分", lengthSort: 25, ejaculationText: "森林裡的秘密！", ejaculationSort: Infinity, notes: "" },
+            { rank: 10, animal: "駱駝 🐪", lengthText: "20 - 30 公分", lengthSort: 25, ejaculationText: "幾分鐘的浪漫！", ejaculationSort: 120, notes: "沙漠中的耐力王者，連這方面也很有耐心！" },
+            { rank: 11, animal: "紅鹿 🦌", lengthText: "15 - 25 公分", lengthSort: 20, ejaculationText: "快速搞定！", ejaculationSort: 5, notes: "" },
+            { rank: 12, animal: "羊 🐑", lengthText: "15 - 20 公分", lengthSort: 17.5, ejaculationText: "咻一下就結束了！", ejaculationSort: 5, notes: "" },
+            { rank: 13, animal: "山羊 🐐", lengthText: "15 - 20 公分", lengthSort: 17.5, ejaculationText: "瞬間完成！", ejaculationSort: 5, notes: "" },
+            { rank: 14, animal: "人類 🧍", lengthText: "13 - 15 公分", lengthSort: 14, ejaculationText: "數分鐘，因人而異！", ejaculationSort: 120, notes: "平均勃起長度，但「尺寸」和「時間」都是個體差異很大的話題喔！" },
+            { rank: 15, animal: "老虎 🐅", lengthText: "10 - 20 公分", lengthSort: 15, ejaculationText: "電光火石之間！", ejaculationSort: 5, notes: "陰莖帶有倒刺，為了快速刺激雌性排卵！" },
+            { rank: 16, animal: "獅子 🦁", lengthText: "10 - 20 公分", lengthSort: 15, ejaculationText: "迅速搞定！", ejaculationSort: 5, notes: "與老虎類似，也是帶刺的「那話兒」！" },
+            { rank: 17, animal: "狗 🐶", lengthText: "5 - 20 公分", lengthSort: 12.5, ejaculationText: "5 - 30 分鐘 (鎖定中...)", ejaculationSort: 1000, notes: "交配時會出現「鎖定」現象，所以時間會比較長喔！" },
+            { rank: 18, animal: "袋鼠 🦘", lengthText: "10 - 20 公分", lengthSort: 15, ejaculationText: "很快的！", ejaculationSort: 5, notes: "擁有獨特的雙頭陰莖，適應雌性的雙陰道結構！" },
+            { rank: 19, animal: "狼 🐺", lengthText: "8 - 15 公分", lengthSort: 11.5, ejaculationText: "5 - 30 分鐘 (鎖定中...)", ejaculationSort: 1000, notes: "和狗狗一樣，也會有「鎖定」的特殊時刻！" },
+            { rank: 20, animal: "熊貓 🐼", lengthText: "5 - 10 公分", lengthSort: 7.5, ejaculationText: "溫柔的幾分鐘！", ejaculationSort: 120, notes: "看似笨拙，但這方面也很努力！" },
+            { rank: 21, animal: "狐狸 🦊", lengthText: "5 - 10 公分", lengthSort: 7.5, ejaculationText: "幾分鐘的浪漫！", ejaculationSort: 120, notes: "" },
+            { rank: 22, animal: "水獺 🦦", lengthText: "5 - 10 公分", lengthSort: 7.5, ejaculationText: "水下進行，時間不詳！", ejaculationSort: 60, notes: "水中的小精靈，交配也很有趣！" },
+            { rank: 23, animal: "蝙蝠 🦇", lengthText: "1 - 5 公分", lengthSort: 3, ejaculationText: "夜間行動，是個謎！", ejaculationSort: Infinity, notes: "種類繁多，尺寸也各異，但通常都小巧玲瓏！" },
+            { rank: 24, animal: "大猩猩 🦍", lengthText: "3 - 4 公分", lengthSort: 3.5, ejaculationText: "數秒至數分鐘，很有效率！", ejaculationSort: 60, notes: "體型雖大，但「那話兒」卻相對迷你，證明尺寸不是唯一！" },
+            { rank: 25, animal: "貓 🐱", lengthText: "2 - 3 公分", lengthSort: 2.5, ejaculationText: "快速閃電戰！", ejaculationSort: 5, notes: "陰莖帶有倒刺，是為了刺激雌貓排卵的秘密武器！" },
+            { rank: 26, animal: "兔子 🐰", lengthText: "2 - 3 公分", lengthSort: 2.5, ejaculationText: "一瞬間的事！", ejaculationSort: 5, notes: "繁殖力超強的牠們，交配也超級迅速！" },
+            { rank: 27, animal: "老鼠 🐭", lengthText: "1 - 2 公分", lengthSort: 1.5, ejaculationText: "眨眼功夫！", ejaculationSort: 5, notes: "" },
+            { rank: 28, animal: "倉鼠 🐹", lengthText: "1 - 2 公分", lengthSort: 1.5, ejaculationText: "超光速完成！", ejaculationSort: 5, notes: "" },
+            { rank: 29, animal: "鼴鼠 🕳️", lengthText: "1 - 2 公分", lengthSort: 1.5, ejaculationText: "地下世界的秘密！", ejaculationSort: Infinity, notes: "生活在地下，連這方面也充滿神秘感！" },
+            { rank: 30, animal: "鼩鼱 🐁", lengthText: "0.5 - 1 公分", lengthSort: 0.75, ejaculationText: "小到看不見的瞬間！", ejaculationSort: Infinity, notes: "體型非常小，陰莖也迷你到不行，但依然能繁衍後代！" }
+        ];
+
+        // 快問快答數據
+        const qaData = [
+            { question: "藍鯨的「那話兒」有多長？", answer: "約等於一輛小型公車的長度！絕對是動物界的「巨無霸」！" },
+            { question: "陸地上陰莖最長的動物是誰？", answer: "非洲象！牠的「那話兒」幾乎和一個成年人一樣高！" },
+            { question: "為什麼狗和狼交配時間會很長？", answer: "因為牠們在交配後會出現「鎖定」現象，這是為了確保受孕成功率喔！" },
+            { question: "貓科動物的陰莖上為什麼會有倒刺？", answer: "這是為了刺激雌性排卵，提高繁殖效率！" },
+            { question: "豬的陰莖有什麼特別之處？", answer: "牠的「那話兒」是獨特的螺旋狀，為了更「緊密」的結合！" },
+            { question: "海象的「那話兒」裡有什麼特別的骨頭？", answer: "牠的「那話兒」裡藏著一根動物界最長的陰莖骨，足足有你的大腿骨那麼長！" },
+            { question: "大猩猩的體型那麼大，牠的陰莖也很大嗎？", answer: "錯！牠的「那話兒」卻是相對較小的，這告訴我們，尺寸不一定與體型成正比喔！" },
+            { question: "動物界的閃電俠是誰？", answer: "許多動物的射精時間都非常短，例如公牛、長頸鹿、羊、兔子等，牠們的交配過程都非常迅速，堪稱動物界的「閃電俠」！" },
+            { question: "動物界的慢郎中是誰？", answer: "在哺乳類動物中，狗和狼的射精時間相對較長，因為牠們有「鎖定」現象，可以持續數分鐘甚至半小時！" },
+            // 新增的深度題目
+            { question: "根據表格，藍鯨是體型最大的動物，擁有最大的陰莖。然而，大猩猩體型龐大，陰莖卻相對較小。這說明了什麼關於動物體型和陰莖尺寸之間的關係？", answer: "這說明動物的陰莖尺寸不一定與其整體體型成正比。不同物種的生殖策略和演化壓力會導致陰莖尺寸的巨大差異，即使是體型相近的動物也可能如此。" },
+            { question: "射精時間的長短可能與動物的生殖策略或生存環境有關。你認為表格中射精時間極短和相對較長的動物，各自可能面臨什麼不同的演化壓力？", answer: "射精時間的長短可能反映了不同的生殖策略。快速射精的動物可能需要在短時間內完成交配以避免捕食者或競爭者；而射精時間較長的動物（如狗的「鎖定」）可能旨在確保精子能更有效地受孕，減少精子競爭，或在特定交配系統中發揮作用。" },
+            { question: "表格中提到貓科動物陰莖有倒刺，豬的陰莖呈螺旋狀。這些特殊的陰莖結構對牠們的繁殖有何幫助？", answer: "這些特殊結構是為了適應不同的生殖需求。貓科動物的倒刺能刺激雌性排卵，提高受孕率。豬的螺旋狀陰莖則能更好地適應雌性生殖道的螺旋形狀，確保精子能更有效地送達。這些都是為了最大化繁殖成功率的演化適應。" }
+        ];
+
+        const tableBody = document.getElementById('mammal-table-body');
+        let currentSortColumn = 'rank'; // 預設排序欄位改為 'rank'
+        let currentSortDirection = 'asc'; // 預設排序方向改為 'asc' (由小到大)
+
+        // 快問快答相關元素
+        const qaQuestion = document.getElementById('qa-question');
+        const qaAnswer = document.getElementById('qa-answer');
+        const showAnswerBtn = document.getElementById('show-answer-btn');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const restartQuizBtn = document.getElementById('restart-quiz-btn');
+
+        let shuffledQaData = []; // 用於儲存打亂後的題目
+        let currentQaIndex = 0;
+
+        // 趣味內容彈出視窗相關元素
+        const funNoteModalOverlay = document.getElementById('fun-note-modal-overlay');
+        const funNoteModalCloseBtn = document.getElementById('fun-note-modal-close');
+        const modalAnimalName = document.getElementById('modal-animal-name');
+        const modalFunNote = document.getElementById('modal-fun-note');
+
+
+        // 初始化 Tone.js 合成器
+        const synth = new Tone.Synth().toDestination();
+
+        // 播放滴答聲的函數
+        function playTickSound() {
+            // 在播放音效前檢查 AudioContext 狀態並嘗試恢復
+            if (Tone.context.state !== 'running') {
+                // 如果 AudioContext 尚未運行，嘗試恢復並在恢復後播放音效
+                Tone.context.resume().then(() => {
+                    synth.triggerAttackRelease("C4", "8n", Tone.context.currentTime);
+                });
+            } else {
+                // 如果 AudioContext 已經運行，直接播放音效
+                synth.triggerAttackRelease("C4", "8n", Tone.context.currentTime);
+            }
+        }
+
+        // Fisher-Yates 洗牌演算法
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // 交換元素
+            }
+            return array;
+        }
+
+        // 渲染表格內容的函數
+        function renderTable(data) {
+            tableBody.innerHTML = ''; // 清空現有內容
+            // 過濾數據，只顯示排名在 30 或以下的動物
+            const filteredData = data.filter(item => item.rank <= 30);
+
+            filteredData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('hover:bg-pink-50', 'transition-all', 'duration-200', 'ease-in-out');
+
+                // 偶數行添加背景色，增加可讀性 (基於當前索引)
+                if (index % 2 === 0) {
+                    row.classList.add('bg-gray-50');
+                }
+
+                // 標示人類行
+                if (item.animal.includes('人類')) { // 檢查是否包含「人類」
+                    row.classList.add('highlight-human');
+                }
+
+                // 準備動物名稱的顯示內容
+                let animalContentHtml;
+                if (item.rank === 1) { // 只有當排名為1時才加上皇冠
+                    animalContentHtml = `
+                        <div class="animal-cell-content">
+                            <span class="crown-emoji">👑</span>
+                            <button type="button" class="animal-name-button" data-animal="${item.animal}" data-note="${item.notes}">${item.animal}</button>
+                        </div>
+                    `;
+                } else {
+                    animalContentHtml = `
+                        <div class="animal-cell-content">
+                            <button type="button" class="animal-name-button" data-animal="${item.animal}" data-note="${item.notes}">${item.animal}</button>
+                        </div>
+                    `;
+                }
+
+
+                row.innerHTML = `
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">${item.rank}</td>
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">${animalContentHtml}</td>
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">${item.lengthText}</td>
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-800">${item.ejaculationText}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // 在所有行渲染完畢後，為所有 animal-name-button 添加事件監聽器
+            document.querySelectorAll('.animal-name-button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const animal = event.target.dataset.animal;
+                    const note = event.target.dataset.note;
+                    showFunNoteModal(animal, note);
+                });
+            });
+        }
+
+        // 排序表格的函數
+        function sortTable(column) {
+            // 如果點擊的是當前排序欄位，則切換排序方向
+            if (currentSortColumn === column) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // 否則，設定新的排序欄位並重置為升序
+                currentSortColumn = column;
+                currentSortDirection = 'asc';
+            }
+
+            // 清除所有箭頭樣式
+            document.querySelectorAll('.sort-arrow').forEach(arrow => {
+                arrow.classList.remove('sort-asc', 'sort-desc');
+            });
+
+            // 根據排序方向添加箭頭樣式
+            const currentArrow = document.getElementById(`sort-${column}`);
+            if (currentArrow) {
+                currentArrow.classList.add(currentSortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+
+            // 執行排序
+            const sortedData = [...mammalData].sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+
+                // 處理字符串排序
+                if (typeof valA === 'string' && typeof valB === 'string') {
+                    return currentSortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                }
+                // 處理數字排序，包括 Infinity (不詳) 的情況
+                if (valA === Infinity && valB !== Infinity) return currentSortDirection === 'asc' ? 1 : -1;
+                if (valB === Infinity && valA !== Infinity) return currentSortDirection === 'asc' ? -1 : 1;
+                if (valA === Infinity && valB === Infinity) return 0; // 兩個都是 Infinity 則視為相等
+
+                return currentSortDirection === 'asc' ? valA - valB : valB - valA;
+            });
+
+            renderTable(sortedData); // 重新渲染表格
+        }
+
+        // 為可排序的標頭添加點擊事件監聽器
+        document.querySelectorAll('th[data-sort-by]').forEach(header => {
+            header.addEventListener('click', () => {
+                const sortBy = header.getAttribute('data-sort-by');
+                sortTable(sortBy);
+            });
+        });
+
+        // 快問快答函數
+        function displayQuestion() {
+            if (currentQaIndex < shuffledQaData.length) {
+                qaQuestion.textContent = `Q${currentQaIndex + 1}: ${shuffledQaData[currentQaIndex].question}`;
+                qaAnswer.textContent = shuffledQaData[currentQaIndex].answer;
+                qaAnswer.classList.add('hidden'); // 預設隱藏答案
+                showAnswerBtn.classList.remove('hidden');
+                nextQuestionBtn.classList.remove('hidden');
+                restartQuizBtn.classList.add('hidden');
+                playTickSound(); // 顯示新題目時播放滴答聲
+            } else {
+                // 所有問題都回答完畢
+                qaQuestion.textContent = "恭喜你！所有問題都回答完畢了！🎉";
+                qaAnswer.textContent = "點擊「重新開始」再次挑戰吧！";
+                qaAnswer.classList.remove('hidden');
+                showAnswerBtn.classList.add('hidden');
+                nextQuestionBtn.classList.add('hidden');
+                restartQuizBtn.classList.remove('hidden');
+            }
+        }
+
+        function showAnswer() {
+            qaAnswer.classList.remove('hidden');
+            showAnswerBtn.classList.add('hidden');
+        }
+
+        function nextQuestion() {
+            currentQaIndex++;
+            displayQuestion();
+        }
+
+        function restartQuiz() {
+            currentQaIndex = 0;
+            shuffledQaData = shuffleArray([...qaData]); // 重新打亂題目
+            displayQuestion();
+        }
+
+        // 事件監聽器
+        showAnswerBtn.addEventListener('click', showAnswer);
+        nextQuestionBtn.addEventListener('click', nextQuestion);
+        restartQuizBtn.addEventListener('click', restartQuiz);
+
+        // 顯示趣味內容彈出視窗
+        function showFunNoteModal(animal, note) {
+            modalAnimalName.textContent = animal;
+            modalFunNote.textContent = note;
+            funNoteModalOverlay.classList.remove('hidden');
+        }
+
+        // 關閉趣味內容彈出視窗
+        function closeFunNoteModal() {
+            funNoteModalOverlay.classList.add('hidden');
+        }
+
+        // 彈出視窗關閉按鈕事件
+        funNoteModalCloseBtn.addEventListener('click', closeFunNoteModal);
+
+        // 點擊彈出視窗外部關閉視窗
+        funNoteModalOverlay.addEventListener('click', (event) => {
+            if (event.target === funNoteModalOverlay) {
+                closeFunNoteModal();
+            }
+        });
+
+
+        // 頁面載入時，預設以排名（由小到大）排序並渲染表格，同時初始化快問快答
+        window.onload = () => {
+            // 初始渲染：直接以 rank 升序排序並渲染
+            const initialSortedData = [...mammalData].sort((a, b) => a.rank - b.rank); // 根據 rank 進行升序排序
+            renderTable(initialSortedData);
+
+            // 設定初始排序狀態，以便後續點擊能正確切換
+            currentSortColumn = 'rank';
+            currentSortDirection = 'asc';
+
+            // 手動設定初始排序箭頭
+            const initialArrow = document.getElementById(`sort-${currentSortColumn}`);
+            if (initialArrow) {
+                initialArrow.classList.add('sort-asc'); // 預設為升序箭頭
+            }
+
+            // 初始化快問快答：打亂題目並顯示第一題
+            shuffledQaData = shuffleArray([...qaData]);
+            displayQuestion();
+        };
+    </script>
+</body>
+</html>
+
